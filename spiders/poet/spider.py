@@ -1,17 +1,19 @@
 """
 这个是从古诗文网进行的爬取
 """
-
 import aiohttp
 import asyncio
+import json
 import re
-from bs4 import BeautifulSoup
+import os
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 HOST = 'https://so.gushiwen.org'
 
 # 唐诗首页
 TANGSHIHOME = '/gushi/tangshi.aspx'
+SONGCIHOME = '/gushi/songsan.aspx'
 
 # 诗词内容
 DETAILCONTURL = 'https://so.gushiwen.org/shiwen2017/ajaxshiwencont.aspx?id={poet_id}&value=cont'
@@ -89,12 +91,12 @@ async def get_tangshi_detail(url):
     shangxi = await extract_shang(poet_id, headers)
     poet = dict()
     poet['title'] = url[1]
-    poet['author'] = url[1]
+    poet['author'] = url[2]
     poet['cont'] = cont
     poet['yi'] = yi
     poet['zhu'] = zhu
     poet['shangxi'] = shangxi
-    print(poet)
+    return poet
 
 
 async def get_tangshi_list():
@@ -103,12 +105,33 @@ async def get_tangshi_list():
 
     html = await fetch(f'{HOST}{TANGSHIHOME}')
     links = link_re.findall(html)
+    poets = []
     for link in links:
-        await get_tangshi_detail(link)
+        poet = await get_tangshi_detail(link)
+        print(link)
+        poets.append(poet)
+    return poets
+
+
+async def get_songci_list():
+    link_re = re.compile(
+        r'<span><a href="(?P<link>.*)" target="_blank">(?P<title>.*)</a>\((?P<author>.*)\)</span>')
+
+    html = await fetch(f'{HOST}{SONGCIHOME}')
+    links = link_re.findall(html)
+    poets = []
+    for link in links:
+        poet = await get_tangshi_detail(link)
+        print(link)
+        poets.append(poet)
+    return poets
 
 
 async def main():
-    await get_tangshi_list()
+    tangshi300 = await get_tangshi_list()
+    with open(os.path.join(BASE_DIR, 'datas/tangshi300.json'), 'w', encoding='utf-8') as f:
+        f.write(json.dumps(tangshi300))
+
 
 loop = asyncio.get_event_loop()
 loop.run_until_complete(main())

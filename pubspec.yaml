@@ -19,6 +19,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  font_awesome_flutter: ^8.5.0
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -42,6 +43,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/loginbackground.png
+    - assets/images/weixin.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:

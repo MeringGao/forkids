@@ -113,7 +113,7 @@ async def get_tangshi_list():
     return poets
 
 
-async def get_songci_list():
+async def get_tangsongci_list():
     link_re = re.compile(
         r'<span><a href="(?P<link>.*)" target="_blank">(?P<title>.*)</a>\((?P<author>.*)\)</span>')
 
@@ -127,11 +127,21 @@ async def get_songci_list():
     return poets
 
 
-async def main():
+async def tangshi():
     tangshi300 = await get_tangshi_list()
     with open(os.path.join(BASE_DIR, 'datas/tangshi300.json'), 'w', encoding='utf-8') as f:
         f.write(json.dumps(tangshi300))
 
 
+async def tangsongci():
+    tangsongci300 = await get_tangsongci_list()
+    with open(os.path.join(BASE_DIR, 'datas/tangsongci300.json'), 'w') as f:
+        f.write(json.dumps(tangsongci300))
+
+
+async def main():
+    await tangshi()
+    await tangsongci()
+
 loop = asyncio.get_event_loop()
-loop.run_until_complete(main())
+loop.run_until_complete()

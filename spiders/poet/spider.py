@@ -29,6 +29,9 @@ ZHU_RE = re.compile(r'<br /><span style="color:#286345;">(.*)>{0}</span>')
 ZHU_ITEM_RE = re.compile(r'([^。]*?)：([^：]*。)')
 SHANG_RE = re.compile(r'<p>(.*?)</p>')
 
+SUB_CONT = re.compile(r'\(.*?\)|<.*?>|<br />')
+SUB_TAG = re.compile(r'<.*?>')
+
 
 async def fetch(url, headers=None):
     async with aiohttp.ClientSession() as session:
@@ -38,14 +41,14 @@ async def fetch(url, headers=None):
 
 async def extract_cont(poet_id, headers):
     cont_html = await fetch(DETAILCONTURL.format(poet_id=poet_id), headers)
-    cont = cont_html.replace('<br />', '\n')
+    cont = SUB_CONT.sub('', cont_html)
     return cont
 
 
 async def extract_yi(poet_id, headers):
     yi_html = await fetch(DETAILYIURL.format(poet_id=poet_id), headers)
     yi_list = YI_RE.findall(yi_html)
-    return yi_list
+    return [SUB_TAG.sub('', item) for item in yi_list]
 
 
 async def extract_zhu(poet_id, headers):
@@ -55,7 +58,8 @@ async def extract_zhu(poet_id, headers):
     for zhu_block in zhu_blocks:
         zhu_list = ZHU_ITEM_RE.findall(zhu_block)
         for item in zhu_list:
-            zhu.append({"key": item[0], "value": item[1]})
+            zhu.append(
+                {"key": SUB_TAG('', item[0]), "value": SUB_TAG('', item[1])})
     return zhu
 
 
@@ -63,7 +67,7 @@ async def extract_shang(poet_id, headers):
     shang_html = await fetch(DETAILSHANGURL.format(poet_id=poet_id), headers)
     shang_html = shang_html.replace('\u3000', '')
     shang_list = SHANG_RE.findall(shang_html)
-    return shang_list
+    return [SUB_TAG.sub('', item) for item in shang_list]
 
 
 async def get_tangshi_detail(url):
@@ -102,7 +106,6 @@ async def get_tangshi_detail(url):
 async def get_tangshi_list():
     link_re = re.compile(
         r'<span><a href="(?P<link>.*)" target="_blank">(?P<title>.*)</a>\((?P<author>.*)\)</span>')
-
     html = await fetch(f'{HOST}{TANGSHIHOME}')
     links = link_re.findall(html)
     poets = []
@@ -116,7 +119,6 @@ async def get_tangshi_list():
 async def get_tangsongci_list():
     link_re = re.compile(
         r'<span><a href="(?P<link>.*)" target="_blank">(?P<title>.*)</a>\((?P<author>.*)\)</span>')
-
     html = await fetch(f'{HOST}{SONGCIHOME}')
     links = link_re.findall(html)
     poets = []
@@ -144,4 +146,4 @@ async def main():
     await tangsongci()
 
 loop = asyncio.get_event_loop()
-loop.run_until_complete()
+loop.run_until_complete(main())

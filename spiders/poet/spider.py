@@ -13,16 +13,19 @@ HOST = 'https://so.gushiwen.org'
 # 唐诗首页
 TANGSHIHOME = '/gushi/tangshi.aspx'
 
-# 赏析地址
-SHANGXIHOST = 'https://so.gushiwen.org/shiwen2017/ajaxshangxi.aspx?id={id}'
-# 赏析地址 请求头
-SHANGXIHEADERS = {
-    # ':authority': 'so.gushiwen.org',
-    # 'referer': 'https://so.gushiwen.org/shiwenv_45c396367f59.aspx',
-    'sec-fetch-mode': 'cors',
-    'sec-fetch-site': 'same-origin',
-    'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36'
-}
+# 诗词内容
+DETAILCONTURL = 'https://so.gushiwen.org/shiwen2017/ajaxshiwencont.aspx?id={poet_id}&value=cont'
+# 赏析
+DETAILSHANGURL = 'https://so.gushiwen.org/shiwen2017/ajaxshiwencont.aspx?id={poet_id}&value=shang'
+# 翻译
+DETAILYIURL = 'https://so.gushiwen.org/shiwen2017/ajaxshiwencont.aspx?id={poet_id}&value=yi'
+# 注释
+DETAILZHUURL = 'https://so.gushiwen.org/shiwen2017/ajaxshiwencont.aspx?id={poet_id}&value=zhu'
+
+YI_RE = re.compile(r'<span style="color:#76621c;">(.*)<br /></span>')
+ZHU_RE = re.compile(r'<br /><span style="color:#286345;">(.*)>{0}</span>')
+ZHU_ITEM_RE = re.compile(r'([^。]*?)：([^：]*。)')
+SHANG_RE = re.compile(r'<p>(.*?)</p>')
 
 
 async def fetch(url, headers=None):
@@ -31,37 +34,67 @@ async def fetch(url, headers=None):
             return await response.text()
 
 
+async def extract_cont(poet_id, headers):
+    cont_html = await fetch(DETAILCONTURL.format(poet_id=poet_id), headers)
+    cont = cont_html.replace('<br />', '\n')
+    return cont
+
+
+async def extract_yi(poet_id, headers):
+    yi_html = await fetch(DETAILYIURL.format(poet_id=poet_id), headers)
+    yi_list = YI_RE.findall(yi_html)
+    return yi_list
+
+
+async def extract_zhu(poet_id, headers):
+    zhu_html = await fetch(DETAILZHUURL.format(poet_id=poet_id), headers)
+    zhu_blocks = ZHU_RE.findall(zhu_html)
+    zhu = []
+    for zhu_block in zhu_blocks:
+        zhu_list = ZHU_ITEM_RE.findall(zhu_block)
+        for item in zhu_list:
+            zhu.append({"key": item[0], "value": item[1]})
+    return zhu
+
+
+async def extract_shang(poet_id, headers):
+    shang_html = await fetch(DETAILSHANGURL.format(poet_id=poet_id), headers)
+    shang_html = shang_html.replace('\u3000', '')
+    shang_list = SHANG_RE.findall(shang_html)
+    return shang_list
+
+
 async def get_tangshi_detail(url):
-    print(url)
-    fanyi_re = re.compile(r'<p>(?:<strong>译文</strong>|译文)<br />(.*)</p>')
-    zhushi_re = re.compile(r'<p>(?:<strong>注释</strong>|注释)<br />(.*)</p>')
-    shangxiid_re = re.compile(
-        r'<a style="text-decoration:none;" href="javascript:shangxiShow\((\d+)\)">展开阅读全文 ∨</a>')
-    html = await fetch(f'{HOST}{url}')
-    fanyi = fanyi_re.findall(html)[0].replace('<br />', '\n')
-    zhushi = zhushi_re.findall(html)[0].replace('<br />', '\n')
+    """
+    Args:
+        - url : tuple
+            - 0: link
+            - 1: title
+            - 2: author
+    """
     headers = {
-        'pragma': 'no-cache',
-        'cookie': 'Hm_lvt_04660099568f561a75456483228a9516=1566823011; ASP.NET_SessionId=421wuci0yygj0pojwzvco5cp; codeyzgswso=6cad65c0e49c9662; Hm_lpvt_04660099568f561a75456483228a9516=1566828029',
-        'authority': 'so.gushiwen.org',
-        'referer': f'{HOST}{url}',
+        'sec-fetch-mode': 'cors',
         'accept-encoding': 'gzip, deflate, br',
         'accept-language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7,zh-TW;q=0.6,ja;q=0.5',
+        'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36',
         'accept': '*/*',
-        'sec-fetch-mode': 'cors',
-        'sec-fetch-site': 'same-origin',
-        'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36'
-    }
-    shangxihtml = await fetch(SHANGXIHOST.format(id=shangxiid_re.findall(html)[0]), headers)
-    bs = BeautifulSoup(shangxihtml)
-    div = bs.find('div', attrs={'class': 'contyishang'})
-    shangxi = ''
-    for p in div.findAll('p'):
-        shangxi += p.text
-
-    print(fanyi)
-    print(zhushi)
-    print(shangxi)
+        'referer': f'https://so.gushiwen.org{url[0]}',
+        'authority': 'so.gushiwen.org',
+        'cookie': 'Hm_lvt_04660099568f561a75456483228a9516=1566870930; ASP.NET_SessionId=4ztkoghh5fudcefjvjdxnmpp; Hm_lpvt_04660099568f561a75456483228a9516=1566885768',
+        'sec-fetch-site': 'same-origin'}
+    poet_id = url[0].replace('/shiwenv_', '').replace('.aspx', '')
+    cont = await extract_cont(poet_id, headers)
+    yi = await extract_yi(poet_id, headers)
+    zhu = await extract_zhu(poet_id, headers)
+    shangxi = await extract_shang(poet_id, headers)
+    poet = dict()
+    poet['title'] = url[1]
+    poet['author'] = url[1]
+    poet['cont'] = cont
+    poet['yi'] = yi
+    poet['zhu'] = zhu
+    poet['shangxi'] = shangxi
+    print(poet)
 
 
 async def get_tangshi_list():
@@ -71,7 +104,7 @@ async def get_tangshi_list():
     html = await fetch(f'{HOST}{TANGSHIHOME}')
     links = link_re.findall(html)
     for link in links:
-        await get_tangshi_detail(link[0])
+        await get_tangshi_detail(link)
 
 
 async def main():

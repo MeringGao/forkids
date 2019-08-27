@@ -59,7 +59,7 @@ async def extract_zhu(poet_id, headers):
         zhu_list = ZHU_ITEM_RE.findall(zhu_block)
         for item in zhu_list:
             zhu.append(
-                {"key": SUB_TAG('', item[0]), "value": SUB_TAG('', item[1])})
+                {"key": SUB_TAG.sub('', item[0]), "value": SUB_TAG.sub('', item[1])})
     return zhu
 
 

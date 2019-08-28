@@ -21,6 +21,16 @@ class _LoginWidgetState extends State<LoginWidget> {
     ));
   }
 
+  InputDecoration defaultInputDecoration(hint) {
+    Color defaultColor = Colors.white;
+    return InputDecoration(
+        enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: defaultColor, width: 2)),
+        hintText: ' $hint',
+        hintStyle: defaultStyle,
+        focusColor: Colors.white,
+        focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: defaultColor, width: 2)));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,14 +65,9 @@ class _LoginWidgetState extends State<LoginWidget> {
                         width: MediaQuery.of(context).size.width - 50,
                         height: 60,
                         child: TextField(
-                          cursorColor:Colors.white,
+                          cursorColor: Colors.white,
                           style: defaultStyle,
-                          decoration: InputDecoration(
-                              enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white, width: 2)),
-                              hintText: '手机号',
-                              hintStyle: defaultStyle,
-                              focusColor: Colors.white,
-                              focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white, width: 2))),
+                          decoration: defaultInputDecoration('手机号'),
                           onChanged: (String value) {
                             setState(() {
                               username = value;
@@ -74,15 +79,10 @@ class _LoginWidgetState extends State<LoginWidget> {
                         width: MediaQuery.of(context).size.width - 50,
                         height: 60,
                         child: TextField(
-                          cursorColor:Colors.white,
+                          cursorColor: Colors.white,
                           style: defaultStyle,
                           //校验密码
-                          decoration: InputDecoration(
-                              enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white, width: 2)),
-                              hintText: '密码',
-                              hintStyle: defaultStyle,
-                              focusColor: Colors.white,
-                              focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white, width: 2))),
+                          decoration: defaultInputDecoration('密码'),
                           obscureText: true,
                           onChanged: (String value) {
                             setState(() {

@@ -13,6 +13,12 @@ class _RegistWidgetState extends State<RegistWidget> {
   String password;
   String passwordEnsure;
   String code;
+  Color bottomBorderColor;
+
+  @override
+  initState() {
+    super.initState();
+  }
 
   registUser() {
     Navigator.push(context, MaterialPageRoute(
@@ -22,9 +28,20 @@ class _RegistWidgetState extends State<RegistWidget> {
     ));
   }
 
+  InputDecoration defaultInputDecoration(hint) {
+    return InputDecoration(
+        enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: bottomBorderColor, width: 1)),
+        hintText: ' $hint',
+        hintStyle: defaultStyle,
+        focusColor: Colors.white,
+        focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: bottomBorderColor, width: 1)));
+  }
+
   @override
   Widget build(BuildContext context) {
+    bottomBorderColor = Theme.of(context).primaryColor;
     return Scaffold(
+        appBar: AppBar(),
         body: Container(
             width: double.infinity,
             height: double.infinity,
@@ -41,13 +58,8 @@ class _RegistWidgetState extends State<RegistWidget> {
                         height: 60,
                         child: TextField(
                           style: defaultStyle,
-                          cursorColor: Colors.black,
-                          decoration: InputDecoration(
-                              enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.black, width: 1)),
-                              hintText: '手机号',
-                              hintStyle: defaultStyle,
-                              focusColor: Colors.white,
-                              focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.black, width: 1))),
+                          cursorColor: bottomBorderColor,
+                          decoration: defaultInputDecoration('手机号'),
                           onChanged: (String value) {
                             setState(() {
                               username = value;
@@ -60,14 +72,9 @@ class _RegistWidgetState extends State<RegistWidget> {
                         height: 60,
                         child: TextField(
                           style: defaultStyle,
-                          cursorColor: Colors.black,
+                          cursorColor: bottomBorderColor,
                           //校验密码
-                          decoration: InputDecoration(
-                              enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.black, width: 1)),
-                              hintText: '密码',
-                              hintStyle: defaultStyle,
-                              focusColor: Colors.white,
-                              focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.black, width: 1))),
+                          decoration: defaultInputDecoration('密码'),
                           obscureText: true,
                           onChanged: (String value) {
                             setState(() {
@@ -81,14 +88,9 @@ class _RegistWidgetState extends State<RegistWidget> {
                         height: 60,
                         child: TextField(
                           style: defaultStyle,
-                          cursorColor: Colors.black,
+                          cursorColor: bottomBorderColor,
                           //校验密码
-                          decoration: InputDecoration(
-                              enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.black, width: 1)),
-                              hintText: '确认密码',
-                              hintStyle: defaultStyle,
-                              focusColor: Colors.white,
-                              focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.black, width: 1))),
+                          decoration: defaultInputDecoration('确认密码'),
                           obscureText: true,
                           onChanged: (String value) {
                             setState(() {
@@ -105,14 +107,9 @@ class _RegistWidgetState extends State<RegistWidget> {
                             child: TextField(
                               keyboardType: TextInputType.number,
                               style: defaultStyle,
-                              cursorColor: Colors.black,
+                              cursorColor: bottomBorderColor,
                               //校验密码
-                              decoration: InputDecoration(
-                                  enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.black, width: 1)),
-                                  hintText: '验证码',
-                                  hintStyle: defaultStyle,
-                                  focusColor: Colors.white,
-                                  focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.black, width: 1))),
+                              decoration: defaultInputDecoration('验证码'),
                               obscureText: true,
                               onChanged: (String value) {
                                 setState(() {
@@ -121,7 +118,10 @@ class _RegistWidgetState extends State<RegistWidget> {
                               },
                             ),
                           ),
-                          FlatButton(
+                          OutlineButton(
+                              borderSide: BorderSide(color: bottomBorderColor),
+                              splashColor: bottomBorderColor,
+                              highlightColor: Color.fromRGBO(0, 0, 0, 0),
                               color: Color.fromRGBO(0, 0, 0, 0.05),
                               child: Text('发送验证码'),
                               onPressed: () {
@@ -133,18 +133,19 @@ class _RegistWidgetState extends State<RegistWidget> {
                       Material(
                           color: Color.fromRGBO(0, 0, 0, 0),
                           child: InkWell(
-                              splashColor: Colors.grey,
+                              splashColor: bottomBorderColor,
                               highlightColor: Color.fromRGBO(0, 0, 0, 0),
                               child: Container(
                                   width: MediaQuery.of(context).size.width - 50,
                                   height: 40,
                                   decoration: BoxDecoration(
-                                      border: Border.all(color: Color.fromRGBO(121, 121, 121, 1)),
+                                      border: Border.all(color: bottomBorderColor),
                                       color: Color.fromRGBO(242, 242, 242, 0.09),
                                       borderRadius: BorderRadius.all(Radius.circular(5))),
                                   child: Align(child: Text('确认', style: defaultStyle))),
                               onTap: () {
                                 print('$username:$password:$passwordEnsure');
+                                Navigator.of(context).pop();
                               })),
                     ],
                   )))

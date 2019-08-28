@@ -55,6 +55,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                         width: MediaQuery.of(context).size.width - 50,
                         height: 60,
                         child: TextField(
+                          cursorColor:Colors.white,
                           style: defaultStyle,
                           decoration: InputDecoration(
                               enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white, width: 2)),
@@ -73,6 +74,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                         width: MediaQuery.of(context).size.width - 50,
                         height: 60,
                         child: TextField(
+                          cursorColor:Colors.white,
                           style: defaultStyle,
                           //校验密码
                           decoration: InputDecoration(

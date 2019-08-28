@@ -1,6 +1,8 @@
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/material.dart';
 import 'regist.dart';
+import 'package:battery/battery.dart';
+import 'package:location/location.dart';
 
 class LoginWidget extends StatefulWidget {
   LoginWidget({Key key}) : super(key: key);
@@ -12,6 +14,7 @@ class _LoginWidgetState extends State<LoginWidget> {
   TextStyle defaultStyle = TextStyle(color: Colors.white);
   String username = '';
   String password = '';
+  String currentLocation = '';
 
   registUser() {
     Navigator.push(context, MaterialPageRoute(
@@ -43,7 +46,8 @@ class _LoginWidgetState extends State<LoginWidget> {
               Positioned(
                   width: MediaQuery.of(context).size.width,
                   bottom: 10,
-                  child: Align(child: Text('生活不止眼前的...还有远方', style: TextStyle(color: Colors.grey, fontSize: 10)))),
+                  child:
+                      Align(child: Text('生活不止眼前的...还有远方$currentLocation', style: TextStyle(color: Colors.grey, fontSize: 10)))),
               Positioned(
                   width: MediaQuery.of(context).size.width,
                   bottom: 30,
@@ -52,6 +56,23 @@ class _LoginWidgetState extends State<LoginWidget> {
                       icon: Icon(FontAwesomeIcons.weixin, color: Colors.white),
                       onPressed: () {
                         print('login with weixin');
+                        var battery = Battery();
+                        battery.batteryLevel.then((value) {
+                          print(value);
+                        });
+                        var location = new Location();
+                        location.onLocationChanged().listen((LocationData locationData) {
+                          setState(() {
+                            String now = DateTime.now().toString();
+                            currentLocation = '$now:latitude:${locationData.latitude}\nlongitude:${locationData.longitude}';
+                          });
+                        });
+                        location.getLocation().then((locationData) {
+                          setState(() {
+                            String now = DateTime.now().toString();
+                            currentLocation = '$now:latitude:${locationData.latitude}\nlongitude:${locationData.longitude}';
+                          });
+                        });
                       },
                     ),
                   )),

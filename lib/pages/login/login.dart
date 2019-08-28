@@ -15,6 +15,7 @@ class _LoginWidgetState extends State<LoginWidget> {
   String username = '';
   String password = '';
   String currentLocation = '';
+  int batteryLevel = 0;
 
   registUser() {
     Navigator.push(context, MaterialPageRoute(
@@ -46,8 +47,7 @@ class _LoginWidgetState extends State<LoginWidget> {
               Positioned(
                   width: MediaQuery.of(context).size.width,
                   bottom: 10,
-                  child:
-                      Align(child: Text('生活不止眼前的...还有远方$currentLocation', style: TextStyle(color: Colors.grey, fontSize: 10)))),
+                  child: Align(child: Text('生活不止眼前的...还有远方', style: TextStyle(color: Colors.grey, fontSize: 10)))),
               Positioned(
                   width: MediaQuery.of(context).size.width,
                   bottom: 30,
@@ -146,6 +146,8 @@ class _LoginWidgetState extends State<LoginWidget> {
                                   registUser();
                                 })
                           ])),
+                      Text('位置:$currentLocation'),
+                      Text('电池:$batteryLevel'),
                     ],
                   )))
             ])));

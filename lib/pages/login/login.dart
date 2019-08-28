@@ -28,11 +28,13 @@ class _LoginWidgetState extends State<LoginWidget> {
   InputDecoration defaultInputDecoration(hint) {
     Color defaultColor = Colors.white;
     return InputDecoration(
-        enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: defaultColor, width: 2)),
+        enabledBorder: UnderlineInputBorder(
+            borderSide: BorderSide(color: defaultColor, width: 2)),
         hintText: ' $hint',
         hintStyle: defaultStyle,
         focusColor: Colors.white,
-        focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: defaultColor, width: 2)));
+        focusedBorder: UnderlineInputBorder(
+            borderSide: BorderSide(color: defaultColor, width: 2)));
   }
 
   @override
@@ -42,12 +44,16 @@ class _LoginWidgetState extends State<LoginWidget> {
             width: double.infinity,
             height: double.infinity,
             decoration: BoxDecoration(
-                image: DecorationImage(fit: BoxFit.cover, image: AssetImage('assets/images/loginbackground.png'))),
+                image: DecorationImage(
+                    fit: BoxFit.cover,
+                    image: AssetImage('assets/images/loginbackground.png'))),
             child: Stack(children: <Widget>[
               Positioned(
                   width: MediaQuery.of(context).size.width,
                   bottom: 10,
-                  child: Align(child: Text('生活不止眼前的...还有远方', style: TextStyle(color: Colors.grey, fontSize: 10)))),
+                  child: Align(
+                      child: Text('生活不止眼前的...还有远方',
+                          style: TextStyle(color: Colors.grey, fontSize: 10)))),
               Positioned(
                   width: MediaQuery.of(context).size.width,
                   bottom: 30,
@@ -58,19 +64,25 @@ class _LoginWidgetState extends State<LoginWidget> {
                         print('login with weixin');
                         var battery = Battery();
                         battery.batteryLevel.then((value) {
-                          print(value);
+                          setState(() {
+                            batteryLevel = value;
+                          });
                         });
                         var location = new Location();
-                        location.onLocationChanged().listen((LocationData locationData) {
+                        location
+                            .onLocationChanged()
+                            .listen((LocationData locationData) {
                           setState(() {
                             String now = DateTime.now().toString();
-                            currentLocation = '$now:latitude:${locationData.latitude}\nlongitude:${locationData.longitude}';
+                            currentLocation =
+                                '$now:latitude:${locationData.latitude}\nlongitude:${locationData.longitude}';
                           });
                         });
                         location.getLocation().then((locationData) {
                           setState(() {
                             String now = DateTime.now().toString();
-                            currentLocation = '$now:latitude:${locationData.latitude}\nlongitude:${locationData.longitude}';
+                            currentLocation =
+                                '$now:latitude:${locationData.latitude}\nlongitude:${locationData.longitude}';
                           });
                         });
                       },
@@ -122,10 +134,15 @@ class _LoginWidgetState extends State<LoginWidget> {
                                   width: MediaQuery.of(context).size.width - 50,
                                   height: 40,
                                   decoration: BoxDecoration(
-                                      border: Border.all(color: Color.fromRGBO(121, 121, 121, 1)),
-                                      color: Color.fromRGBO(242, 242, 242, 0.09),
-                                      borderRadius: BorderRadius.all(Radius.circular(5))),
-                                  child: Align(child: Text('登录', style: defaultStyle))),
+                                      border: Border.all(
+                                          color:
+                                              Color.fromRGBO(121, 121, 121, 1)),
+                                      color:
+                                          Color.fromRGBO(242, 242, 242, 0.09),
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(5))),
+                                  child: Align(
+                                      child: Text('登录', style: defaultStyle))),
                               onTap: () {
                                 print('$username:$password');
                               })),
@@ -133,19 +150,21 @@ class _LoginWidgetState extends State<LoginWidget> {
                       Container(
                           width: MediaQuery.of(context).size.width - 50,
                           height: 40,
-                          child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                            Text('没有账号?', style: defaultStyle),
-                            Text(' ', style: defaultStyle),
-                            InkWell(
-                                child: Text('注册',
-                                    style: TextStyle(
-                                      color: Color.fromRGBO(2, 167, 240, 1),
-                                      fontWeight: FontWeight.bold,
-                                    )),
-                                onTap: () {
-                                  registUser();
-                                })
-                          ])),
+                          child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Text('没有账号?', style: defaultStyle),
+                                Text(' ', style: defaultStyle),
+                                InkWell(
+                                    child: Text('注册',
+                                        style: TextStyle(
+                                          color: Color.fromRGBO(2, 167, 240, 1),
+                                          fontWeight: FontWeight.bold,
+                                        )),
+                                    onTap: () {
+                                      registUser();
+                                    })
+                              ])),
                       Text('位置:$currentLocation'),
                       Text('电池:$batteryLevel'),
                     ],

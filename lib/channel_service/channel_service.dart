@@ -10,7 +10,7 @@ const String storageChannel = 'forkids.channel.services/storage';
 const String phonecallChannel = 'forkids.channel.services/phonecall';
 const String bluetoohChannel = 'forkids.channel.services/bluetooh';
 
-class Channel {
+mixin Channel {
   var platform;
 
   Future waitMethod(String methodName) async {

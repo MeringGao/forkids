@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'pages/login/login.dart';
+import 'routes.dart';
+import 'theme.dart';
 
 void main() => runApp(MyApp());
 
@@ -9,9 +11,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'For kids',
-      theme: ThemeData(
-        primarySwatch: Colors.deepPurple,
-      ),
+      theme: theme,
+      onGenerateRoute: onGenerateRoute,
       home: MyHomePage(),
     );
   }

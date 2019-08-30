@@ -3,7 +3,13 @@ import 'pages/login/login.dart';
 import 'routes.dart';
 import 'theme.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  // 如果设置了onError,fluter渲染时发生异常是,就会调用onError方法
+  // FlutterError.onError = (FlutterErrorDetails details) {
+  //   print(details);
+  // };
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.

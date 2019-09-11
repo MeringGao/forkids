@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'pages/login/login.dart';
+import 'pages/home/home.dart';
 import 'routes.dart';
 import 'theme.dart';
 
@@ -34,6 +35,6 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
-    return LoginWidget();
+    return HomeWidget();
   }
 }

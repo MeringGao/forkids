@@ -1,9 +1,9 @@
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:flutter/material.dart';
-import '../../utils/word.dart';
-import 'dart:convert';
 import 'dart:io';
+
+import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+
+import '../../utils/word.dart';
 
 void getHttp() async {
   try {
@@ -21,10 +21,10 @@ class HomeWidget extends StatefulWidget {
 }
 
 class _HomeWidgetState extends State<HomeWidget> {
-  Map word;
-  void getWord() async {
-    try {
-      Response<Map> response = await Dio().get("http://101.132.237.187/random_word");
+  Word word;
+  double scale = 0.25;
+  Future getWord() {
+    return Dio().get("http://101.132.237.187/random_word").then((response) {
       List<String> strokes = response.data['graphic']['strokes'].cast<String>().toList();
       List<List> mediansRaw = response.data['graphic']['medians'].cast<List>();
       List<List<List<int>>> medians = List<List<List<int>>>();
@@ -40,51 +40,106 @@ class _HomeWidgetState extends State<HomeWidget> {
         medians.add(threeList);
       }
       setState(() {
-        word = Map();
-        word['strokes'] = strokes;
-        word['medians'] = medians;
+        print('get word');
+        word = Word(strokes, medians, scale, true);
       });
-    } catch (e) {
-      print(e);
-    }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(title: Text("写字"), actions: [IconButton(icon: Icon(Icons.access_alarm), onPressed: getWord)]),
-        body: Center(
-            child: SizedBox(
-                child: word != null ? CustomPaint(painter: WordPainter(word, 0.25)) : Text('xxxx'), width: 256, height: 256)));
+        body: word != null ? WordWidget(word) : Text('xxx'));
+  }
+}
+
+class WordWidget extends StatefulWidget {
+  Word word;
+  WordWidget(this.word);
+  @override
+  State createState() => _WordWidgetState(word);
+}
+
+class _WordWidgetState extends State<WordWidget> with SingleTickerProviderStateMixin {
+  Word word;
+  int medianIndex;
+  Animation<int> animation;
+  AnimationController controller;
+  BiShunPainter biShunPainter;
+  _WordWidgetState(this.word) {
+    biShunPainter = BiShunPainter(word, 0);
+  }
+  @override
+  initState() {
+    super.initState();
+    controller = AnimationController(duration: Duration(seconds: 5), vsync: this);
+    animation = IntTween(begin: 0, end: word.strokePaths.length).animate(controller)
+      ..addListener(() {
+        setState(() {
+          medianIndex = animation.value;
+        });
+      });
+    controller.forward();
+  }
+
+  dispose() {
+    super.dispose();
+    controller.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(children: [
+      SizedBox(child: word != null ? CustomPaint(painter: WordPainter(word)) : Text('xxxx'), width: 256, height: 256),
+      SizedBox(child: medianIndex != null ? CustomPaint(painter: biShunPainter) : Text('xxxx'), width: 256, height: 256),
+    ]);
   }
 }
 
 class WordPainter extends CustomPainter {
-  double scale;
-  Map word;
-  WordPainter(this.word, this.scale);
+  Word word;
+  WordPainter(this.word);
   @override
   void paint(Canvas canvas, Size size) {
-    Word paintWord = Word(word['strokes'], word['medians'], scale, true);
     Paint strokePaint = Paint();
-    strokePaint.color = Colors.red;
+    strokePaint.color = Color.fromRGBO(0, 0, 0, 0.1);
     strokePaint.strokeWidth = 1;
     strokePaint.style = PaintingStyle.fill;
     Paint medianPaint = Paint();
-    medianPaint.color = Colors.blue;
-    medianPaint.strokeWidth = 1;
+    medianPaint.color = Colors.red;
+    medianPaint.strokeWidth = 50;
+    medianPaint.strokeMiterLimit = 10;
     medianPaint.style = PaintingStyle.stroke;
-
-    for (Path path in paintWord.strokePaths) {
+    for (Path path in word.strokePaths) {
       canvas.drawPath(path, strokePaint);
-    }
-    for (var median in paintWord.medianPaths) {
-      canvas.drawPath(median, medianPaint);
     }
   }
 
   @override
   bool shouldRepaint(CustomPainter oldDelegate) {
-    return false;
+    return true;
+  }
+}
+
+class BiShunPainter extends CustomPainter {
+  Word word;
+  int medianIndex;
+  BiShunPainter(this.word, this.medianIndex);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    Paint medianPaint = Paint();
+    medianPaint.color = Colors.red;
+    medianPaint.strokeWidth = 50;
+    medianPaint.strokeMiterLimit = 10;
+    medianPaint.style = PaintingStyle.stroke;
+    canvas.clipPath(word.strokePaths[medianIndex]);
+    canvas.drawPath(word.strokePaths[medianIndex], medianPaint);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) {
+    return true;
   }
 }

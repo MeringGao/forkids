@@ -22,10 +22,12 @@ class HomeWidget extends StatefulWidget {
 
 class _HomeWidgetState extends State<HomeWidget> {
   Word word;
+  WordWidget wordWidget;
   double scale = 0.25;
   Future getWord() {
     return Dio().get("http://101.132.237.187/random_word").then((response) {
-      List<String> strokes = response.data['graphic']['strokes'].cast<String>().toList();
+      List<String> strokes =
+          response.data['graphic']['strokes'].cast<String>().toList();
       List<List> mediansRaw = response.data['graphic']['medians'].cast<List>();
       List<List<List<int>>> medians = List<List<List<int>>>();
       for (List second in mediansRaw) {
@@ -40,8 +42,8 @@ class _HomeWidgetState extends State<HomeWidget> {
         medians.add(threeList);
       }
       setState(() {
-        print('get word');
         word = Word(strokes, medians, scale, true);
+        wordWidget = WordWidget(word);
       });
     });
   }
@@ -49,7 +51,9 @@ class _HomeWidgetState extends State<HomeWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text("写字"), actions: [IconButton(icon: Icon(Icons.access_alarm), onPressed: getWord)]),
+        appBar: AppBar(title: Text("写字"), actions: [
+          IconButton(icon: Icon(Icons.access_alarm), onPressed: getWord)
+        ]),
         body: word != null ? WordWidget(word) : Text('xxx'));
   }
 }
@@ -61,7 +65,8 @@ class WordWidget extends StatefulWidget {
   State createState() => _WordWidgetState(word);
 }
 
-class _WordWidgetState extends State<WordWidget> with SingleTickerProviderStateMixin {
+class _WordWidgetState extends State<WordWidget>
+    with SingleTickerProviderStateMixin {
   Word word;
   int medianIndex;
   Animation<int> animation;
@@ -73,13 +78,22 @@ class _WordWidgetState extends State<WordWidget> with SingleTickerProviderStateM
   @override
   initState() {
     super.initState();
-    controller = AnimationController(duration: Duration(seconds: 5), vsync: this);
-    animation = IntTween(begin: 0, end: word.strokePaths.length).animate(controller)
-      ..addListener(() {
-        setState(() {
-          medianIndex = animation.value;
-        });
-      });
+    controller =
+        AnimationController(duration: Duration(seconds: 5), vsync: this);
+    animation =
+        IntTween(begin: -1, end: word.strokePaths.length).animate(controller)
+          ..addListener(() {
+            print(animation.value);
+            if (animation.value == word.strokePaths.length) {
+              controller.reverse();
+            }
+            if (animation.value == -1) {
+              controller.forward();
+            }
+            setState(() {
+              medianIndex = animation.value;
+            });
+          });
     controller.forward();
   }
 
@@ -91,8 +105,18 @@ class _WordWidgetState extends State<WordWidget> with SingleTickerProviderStateM
   @override
   Widget build(BuildContext context) {
     return Stack(children: [
-      SizedBox(child: word != null ? CustomPaint(painter: WordPainter(word)) : Text('xxxx'), width: 256, height: 256),
-      SizedBox(child: medianIndex != null ? CustomPaint(painter: biShunPainter) : Text('xxxx'), width: 256, height: 256),
+      SizedBox(
+          child: word != null
+              ? CustomPaint(painter: WordPainter(word))
+              : Text('xxxx'),
+          width: 256,
+          height: 256),
+      SizedBox(
+          child: medianIndex != null
+              ? CustomPaint(painter: BiShunPainter(word, medianIndex))
+              : Text('xxxx'),
+          width: 256,
+          height: 256),
     ]);
   }
 }
@@ -129,13 +153,20 @@ class BiShunPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    if (medianIndex < 0) medianIndex = 0;
+    if (medianIndex == word.strokePaths.length)
+      medianIndex = word.strokePaths.length - 1;
     Paint medianPaint = Paint();
     medianPaint.color = Colors.red;
-    medianPaint.strokeWidth = 50;
-    medianPaint.strokeMiterLimit = 10;
-    medianPaint.style = PaintingStyle.stroke;
-    canvas.clipPath(word.strokePaths[medianIndex]);
-    canvas.drawPath(word.strokePaths[medianIndex], medianPaint);
+    medianPaint.strokeWidth = 5;
+    medianPaint.strokeMiterLimit = 2;
+    medianPaint.style = PaintingStyle.fill;
+    for (int i = 0; i <= medianIndex; i++) {
+      canvas.save();
+      canvas.clipPath(word.strokePaths[i]);
+      canvas.drawPath(word.strokePaths[i], medianPaint);
+      canvas.restore();
+    }
   }
 
   @override

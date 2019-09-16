@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
+import 'dart:ui';
 import '../../utils/word.dart';
+import '../../utils/word_path.dart';
 
 class WordWidget extends StatefulWidget {
   final Word word;
-  WordWidget(this.word);
+  final double width;
+  WordWidget(this.word, this.width);
   @override
-  State createState() => _WordWidgetState(word);
+  State createState() => _WordWidgetState(word, width);
 }
 
 class _WordWidgetState extends State<WordWidget> with SingleTickerProviderStateMixin {
   Word word;
   int medianIndex = -2;
+  double width = 256;
   Animation<int> animation;
   AnimationController controller;
-  _WordWidgetState(this.word);
+  _WordWidgetState(this.word, this.width);
   @override
   initState() {
     super.initState();
@@ -32,9 +36,8 @@ class _WordWidgetState extends State<WordWidget> with SingleTickerProviderStateM
   }
 
   dispose() {
-    super.dispose();
-    controller.reset();
     controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -42,19 +45,50 @@ class _WordWidgetState extends State<WordWidget> with SingleTickerProviderStateM
     return Scaffold(
         appBar: AppBar(title: Text('练习')),
         body: Stack(children: [
-          SizedBox(child: CustomPaint(painter: WordPainter(word)), width: 256, height: 256),
-          SizedBox(child: CustomPaint(painter: BiShunPainter(word, medianIndex)), width: 256, height: 256),
+          // Positioned(
+          //     width: width,
+          //     height: width,
+          //     left: (MediaQuery.of(context).size.width - width) / 2,
+          //     top: 10,
+          //     child: Container(
+          //         alignment: Alignment.center,
+          //         child: SizedBox(child: CustomPaint(painter: WordPainter(word, Colors.grey)), width: width, height: width))),
+          Positioned(
+              top: 10,
+              width: width,
+              height: width,
+              left: (MediaQuery.of(context).size.width - width) / 2,
+              child: Container(
+                  alignment: Alignment.center,
+                  child: SizedBox(
+                      child: CustomPaint(
+                          painter: BiShunPainter(
+                        word,
+                        medianIndex,
+                      )),
+                      width: width,
+                      height: width))),
+          Positioned(
+              width: width,
+              height: width,
+              left: (MediaQuery.of(context).size.width - width) / 2,
+              top: width + 10,
+              child: Container(
+                  alignment: Alignment.center,
+                  child:
+                      SizedBox(child: CustomPaint(painter: WordPainter(word, Colors.lightBlue)), width: width, height: width))),
         ]));
   }
 }
 
 class WordPainter extends CustomPainter {
   Word word;
-  WordPainter(this.word);
+  Color color;
+  WordPainter(this.word, this.color);
   @override
   void paint(Canvas canvas, Size size) {
     Paint strokePaint = Paint();
-    strokePaint.color = Colors.grey;
+    strokePaint.color = color;
     strokePaint.strokeWidth = 1;
     strokePaint.style = PaintingStyle.fill;
     for (Path path in word.strokePaths) {
@@ -81,11 +115,22 @@ class BiShunPainter extends CustomPainter {
     Paint medianPaint = Paint();
     medianPaint.color = Colors.red;
     medianPaint.strokeWidth = 500;
-    medianPaint.style = PaintingStyle.fill;
+    medianPaint.strokeCap = StrokeCap.round;
+    medianPaint.style = PaintingStyle.stroke;
+
+    // Paint pointPaint = Paint();
+    // pointPaint.color = Colors.red;
+    // pointPaint.strokeWidth = 50;
+    // pointPaint.strokeCap = StrokeCap.round;
+    // pointPaint.style = PaintingStyle.fill;
+
     for (int i = 0; i <= medianIndex; i++) {
       canvas.save();
       canvas.clipPath(word.strokePaths[i]);
-      canvas.drawPath(word.strokePaths[i], medianPaint);
+      canvas.drawPath(word.medianPaths[i], medianPaint);
+      // WordPath lastPath = word.medians[i][word.medians[i].length - 2];
+      // Offset offset = Offset(lastPath.points[0].x, lastPath.points[0].y);
+      // canvas.drawPoints(PointMode.points, [offset], pointPaint);
       canvas.restore();
     }
   }

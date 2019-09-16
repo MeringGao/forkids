@@ -12,23 +12,9 @@ class HomeWidget extends StatefulWidget {
 class _HomeWidgetState extends State<HomeWidget> {
   Word word;
   double scale = 0.25;
-  double width = 0.0;
+  double width = 256.0;
   Future getWord() {
-    Size size = MediaQuery.of(context).size;
-    if (size.width < 256) {
-      width = 256;
-      scale = 0.25;
-    } else if (size.width > 256 && size.width < 512) {
-      width = 256;
-      scale = 0.25;
-    } else if (size.width > 512 && size.width < 1024) {
-      width = 512;
-      scale = 0.5;
-    } else if (size.width > 1024) {
-      width = 1024;
-      scale = 1;
-    }
-    return Dio().get("http://101.132.237.187/random_word").then((response) {
+    return Dio().get("http://101.132.237.187/random_word?word=我").then((response) {
       List<String> strokes = response.data['graphic']['strokes'].cast<String>().toList();
       List<List> mediansRaw = response.data['graphic']['medians'].cast<List>();
       List<List<List<int>>> medians = List<List<List<int>>>();

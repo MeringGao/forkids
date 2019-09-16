@@ -57,7 +57,6 @@ class _WordWidgetState extends State<WordWidget> with SingleTickerProviderStateM
               top: 10,
               width: width,
               height: width,
-              left: (MediaQuery.of(context).size.width - width) / 2,
               child: Container(
                   alignment: Alignment.center,
                   child: SizedBox(
@@ -71,7 +70,6 @@ class _WordWidgetState extends State<WordWidget> with SingleTickerProviderStateM
           Positioned(
               width: width,
               height: width,
-              left: (MediaQuery.of(context).size.width - width) / 2,
               top: width + 10,
               child: Container(
                   alignment: Alignment.center,

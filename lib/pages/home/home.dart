@@ -13,26 +13,20 @@ class _HomeWidgetState extends State<HomeWidget> {
   Word word;
   double scale = 0.25;
   double width = 256.0;
-  Future getWord() {
-    return Dio().get("http://101.132.237.187/random_word").then((response) {
-      List<String> strokes = response.data['graphic']['strokes'].cast<String>().toList();
-      List<List> mediansRaw = response.data['graphic']['medians'].cast<List>();
-      List<List<List<int>>> medians = List<List<List<int>>>();
-      for (List second in mediansRaw) {
-        List<List<int>> threeList = List<List<int>>();
-        for (List three in second) {
-          List<int> fourList = List<int>();
-          for (int four in three) {
-            fourList.add(four);
-          }
-          threeList.add(fourList);
-        }
-        medians.add(threeList);
-      }
-      word = Word(strokes, medians, scale, true);
+  List<String> words;
+  Future _getWord(String word) {
+    return getWord(scale, word: word).then((word) {
       Navigator.of(context).push(MaterialPageRoute(builder: (context) {
         return WordWidget(word, width);
       }));
+    });
+  }
+
+  Future _getWordList() {
+    return getHanziList().then((wordList) {
+      setState(() {
+        words = wordList;
+      });
     });
   }
 
@@ -42,6 +36,23 @@ class _HomeWidgetState extends State<HomeWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(appBar: AppBar(title: Text("写字")), body: IconButton(icon: Icon(Icons.access_alarm), onPressed: getWord));
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("写字"),
+        actions: <Widget>[
+          IconButton(icon: Icon(Icons.access_time), onPressed: _getWordList),
+        ],
+      ),
+      body: Wrap(
+        children: words
+            .map((word) => FlatButton(
+                  child: Text(word),
+                  onPressed: () {
+                    _getWord(word);
+                  },
+                ))
+            .toList(),
+      ),
+    );
   }
 }

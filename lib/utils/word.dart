@@ -1,37 +1,50 @@
 import 'dart:ui';
 import 'dart:math';
 
+import 'package:dio/dio.dart';
+
 import './word_path.dart';
 
 class Word {
   /// 原始的stroke数据
   List<String> rawStrokes;
+
   /// 原始的median数据
   List<List<List<int>>> rawMedians;
+
   /// 缩放参数
   double scale;
+
   /// 反转
   bool reverse;
+
   /// 经过处理的stroke数据
   List<List<WordPath>> strokes;
+
   ///经过处理的median数据
   List<List<WordPath>> medians;
+
   /// 笔顺长度数据字典
   Map<int, Map<int, double>> distances;
+
   /// stroke 对应的canvas Path数据
   List<Path> strokePaths;
+
   /// median 对应的canvas Path数据
   List<Path> medianPaths;
+
   /// 初始化的时候就计算出需要用到的数据
   Word(this.rawStrokes, this.rawMedians, this.scale, this.reverse) {
     /// 缩放路径数据
     strokes = scaleStrokes(rawStrokes, scale: scale, reverse: reverse);
     medians = scaleMedians(rawMedians, scale: scale, reverse: reverse);
+
     /// 将缩放后的数据构建为Path数据
     this.strokePaths = _buildPath(strokes);
     this.medianPaths = _buildPath(medians);
     _calculateDistance();
   }
+
   /// 笔画是由多个点连成的线
   /// 笔顺的动画是在笔顺的线上取多个点
   /// 比如,笔顺:[[10,15],[11,19],[13,31],[15,33]],这几个点连成的线不是一条直线,每条线斜率是不同的,
@@ -65,6 +78,7 @@ class Word {
       distances[i] = distanceIndex;
     }
   }
+
   /// 这个方法把笔顺数据转为Path数据
   List<Path> _buildPath(List<List<WordPath>> word) {
     List<Path> paths = [];
@@ -103,4 +117,36 @@ class Word {
     }
     return paths;
   }
+}
+
+Future getWord(scale, {String word}) {
+  String url = "http://101.132.237.187/random_word";
+  if (word != null) {
+    url = "http://101.132.237.187/random_word?word=$word";
+  }
+  return Dio().get(url).then((response) {
+    List<String> strokes = response.data['graphic']['strokes'].cast<String>().toList();
+    List<List> mediansRaw = response.data['graphic']['medians'].cast<List>();
+    List<List<List<int>>> medians = List<List<List<int>>>();
+    for (List second in mediansRaw) {
+      List<List<int>> threeList = List<List<int>>();
+      for (List three in second) {
+        List<int> fourList = List<int>();
+        for (int four in three) {
+          fourList.add(four);
+        }
+        threeList.add(fourList);
+      }
+      medians.add(threeList);
+    }
+    return Word(strokes, medians, scale, true);
+  });
+}
+
+Future getHanziList() {
+  String url = "http://101.132.237.187/word_list";
+  return Dio().get(url).then((response) {
+    List<String> words = response.data.cast<String>().toList();
+    return words;
+  });
 }

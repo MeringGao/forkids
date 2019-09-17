@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
-import '../word/word_copy.dart';
+import '../word/word.dart';
 import '../../utils/word.dart';
 
 class HomeWidget extends StatefulWidget {
@@ -14,7 +14,7 @@ class _HomeWidgetState extends State<HomeWidget> {
   double scale = 0.25;
   double width = 256.0;
   Future getWord() {
-    return Dio().get("http://101.132.237.187/random_word?word=我").then((response) {
+    return Dio().get("http://101.132.237.187/random_word").then((response) {
       List<String> strokes = response.data['graphic']['strokes'].cast<String>().toList();
       List<List> mediansRaw = response.data['graphic']['medians'].cast<List>();
       List<List<List<int>>> medians = List<List<List<int>>>();

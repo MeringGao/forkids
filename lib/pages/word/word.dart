@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
 import '../../utils/word.dart';
 import '../../utils/word_path.dart';
 import '../../utils/distance_utils.dart';
@@ -15,8 +17,7 @@ class WordWidget extends StatefulWidget {
   State createState() => _WordWidgetState(wordCharactor, scale, width);
 }
 
-class _WordWidgetState extends State<WordWidget>
-    with SingleTickerProviderStateMixin {
+class _WordWidgetState extends State<WordWidget> with TickerProviderStateMixin {
   Word word;
   String wordCharactor;
   double scale;
@@ -25,13 +26,7 @@ class _WordWidgetState extends State<WordWidget>
   double width = 256;
   Animation<double> animation;
   AnimationController controller;
-  Map<String, int> speed = {
-    "faster": 600,
-    "fast": 700,
-    "common": 800,
-    "slow": 900,
-    'slower': 1000
-  };
+  int speed = 800;
 
   _WordWidgetState(this.wordCharactor, this.scale, this.width);
 
@@ -60,10 +55,27 @@ class _WordWidgetState extends State<WordWidget>
     controller.forward();
   }
 
+  resetSpeed(num) {
+    medianIndex = 0;
+    speed += num;
+    if (speed < 300) {
+      speed = 300;
+    }
+    if (speed > 1000) {
+      speed = 1000;
+    }
+    print(speed);
+    controller.dispose();
+    controller = AnimationController(
+        duration: Duration(milliseconds: speed), vsync: this);
+    controller.reset();
+    newAnimation();
+  }
+
   @override
   initState() {
     controller = AnimationController(
-        duration: Duration(milliseconds: speed['common']), vsync: this);
+        duration: Duration(milliseconds: speed), vsync: this);
     getWord(scale, word: wordCharactor).then((wordOrigin) {
       word = wordOrigin;
       newAnimation();
@@ -82,6 +94,22 @@ class _WordWidgetState extends State<WordWidget>
     return Scaffold(
       appBar: AppBar(
         title: Text('练习'),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(FontAwesomeIcons.fastBackward, size: 15),
+            onPressed: () {
+              resetSpeed(150);
+            },
+            tooltip: '减速',
+          ),
+          IconButton(
+            icon: Icon(FontAwesomeIcons.fastForward, size: 15),
+            onPressed: () {
+              resetSpeed(-150);
+            },
+            tooltip: '加速',
+          ),
+        ],
       ),
       body: Center(
         child: SizedBox(

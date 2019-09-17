@@ -22,16 +22,38 @@ class _WordWidgetState extends State<WordWidget> with SingleTickerProviderStateM
   double width = 256;
   Animation<double> animation;
   AnimationController controller;
-  Map<String, int> speed = {"fast": 700, "common": 1000, "slow": 1300};
+  Map<String, int> speed = {"fast": 700, "common": 1000, "slow": 1300, 'slower': 2000};
 
   _WordWidgetState(this.word, this.width);
 
+  void newAnimation() {
+    double distance = word.distances[medianIndex][word.distances[medianIndex].keys.length - 1];
+    animation = Tween<double>(begin: 0, end: distance).animate(controller)
+      ..addListener(() {
+        if (animation.value >= distance) {
+          print(animation.value);
+          print(distance);
+          if (medianIndex < word.medians.length - 1) {
+            medianIndex += 1;
+          } else {
+            medianIndex = 0;
+          }
+          return newAnimation();
+        }
+        setState(() {
+          animateDistance = animation.value;
+        });
+      });
+    controller.reset();
+    controller.forward();
+  }
+
   @override
   initState() {
-    controller = AnimationController(duration: Duration(milliseconds: speed['slow']), vsync: this);
+    controller = AnimationController(duration: Duration(milliseconds: speed['slower']), vsync: this);
     animation = Tween<double>(begin: 0, end: 512).animate(controller)
       ..addListener(() {
-        if (animation.value > word.distances[medianIndex][word.distances[medianIndex].keys.length - 1]) {
+        if (animation.value >= word.distances[medianIndex][word.distances[medianIndex].keys.length - 1]) {
           if (medianIndex < word.medians.length - 1) {
             medianIndex += 1;
           } else {
@@ -112,6 +134,7 @@ class BiShunPainter extends CustomPainter {
   Paint strokePain;
   Paint medianPaint;
   Paint animatePaint;
+  Paint medianPaintStroke;
 
   BiShunPainter(this.word, this.medianDistance, this.medianIndex, this.animateDistance) {
     strokePain = Paint();
@@ -123,9 +146,14 @@ class BiShunPainter extends CustomPainter {
     medianPaint.strokeWidth = 1;
     medianPaint.style = PaintingStyle.fill;
 
+    medianPaintStroke = Paint();
+    medianPaintStroke.color = Colors.blue;
+    medianPaintStroke.strokeWidth = 1;
+    medianPaintStroke.style = PaintingStyle.stroke;
+
     animatePaint = Paint();
     animatePaint.color = Colors.red;
-    animatePaint.strokeWidth = 90;
+    animatePaint.strokeWidth = 50;
     animatePaint.strokeCap = StrokeCap.round;
     animatePaint.style = PaintingStyle.stroke;
   }
@@ -164,12 +192,13 @@ class BiShunPainter extends CustomPainter {
 
   void _paintMedianLine(Canvas canvas, Size size) {
     // 正在画的笔顺
+    var median = word.medians[medianIndex];
     List<double> endPoint = _distanceToPoint();
-
     canvas.clipPath(word.strokePaths[medianIndex]);
-    WordPathPoint startPoint = word.medians[medianIndex][0].points[0];
+    WordPathPoint startPoint = median[0].points[0];
+    WordPathPoint currentPoint;
     for (int j = 1; j < currentIndex; j++) {
-      WordPathPoint currentPoint = word.medians[medianIndex][currentIndex].points[0];
+      currentPoint = median[j].points[0];
       canvas.drawLine(Offset(startPoint.x, startPoint.y), Offset(currentPoint.x, currentPoint.y), animatePaint);
       startPoint = currentPoint;
     }

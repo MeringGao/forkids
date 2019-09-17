@@ -44,14 +44,16 @@ class _HomeWidgetState extends State<HomeWidget> {
         ],
       ),
       body: Wrap(
-        children: words
-            .map((word) => FlatButton(
-                  child: Text(word),
-                  onPressed: () {
-                    _getWord(word);
-                  },
-                ))
-            .toList(),
+        children: words != null
+            ? words
+                .map((word) => FlatButton(
+                      child: Text(word),
+                      onPressed: () {
+                        _getWord(word);
+                      },
+                    ))
+                .toList()
+            : Text('获取汉字列表'),
       ),
     );
   }

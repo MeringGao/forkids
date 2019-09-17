@@ -53,7 +53,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                       },
                     ))
                 .toList()
-            : Text('获取汉字列表'),
+            : [FlatButton(child: Text('随机获取汉字'), onPressed: _getWordList)],
       ),
     );
   }

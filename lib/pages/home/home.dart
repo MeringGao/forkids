@@ -14,6 +14,7 @@ class _HomeWidgetState extends State<HomeWidget> {
   double scale = 0.25;
   double width = 256.0;
   List<String> words;
+
   Future _getWord(String word) {
     return getWord(scale, word: word).then((word) {
       Navigator.of(context).push(MaterialPageRoute(builder: (context) {
@@ -54,6 +55,17 @@ class _HomeWidgetState extends State<HomeWidget> {
                     ))
                 .toList()
             : [FlatButton(child: Text('随机获取汉字'), onPressed: _getWordList)],
+      ),
+      drawer: Drawer(
+        child: ListView(
+          children: <Widget>[
+            Container(
+              width: double.infinity,
+              height: 300,
+              child: Text("xxx"),
+            )
+          ],
+        ),
       ),
     );
   }

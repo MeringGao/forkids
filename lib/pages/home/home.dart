@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:dio/dio.dart';
 import '../word/word.dart';
 import '../../utils/word.dart';
 
@@ -16,11 +15,9 @@ class _HomeWidgetState extends State<HomeWidget> {
   List<String> words;
 
   Future _getWord(String word) {
-    return getWord(scale, word: word).then((word) {
-      Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-        return WordWidget(word, width);
-      }));
-    });
+    return Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+      return WordWidget(word, scale, width);
+    }));
   }
 
   Future _getWordList() {

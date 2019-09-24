@@ -1,75 +1,86 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
-import 'dart:math';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
 import '../../utils/word.dart';
 import '../../utils/word_path.dart';
 import '../../utils/distance_utils.dart';
 
 class WordWidget extends StatefulWidget {
-  final Word word;
+  final String wordCharactor;
+  final double scale;
   final double width;
 
-  WordWidget(this.word, this.width);
+  WordWidget(this.wordCharactor, this.scale, this.width);
 
   @override
-  State createState() => _WordWidgetState(word, width);
+  State createState() => _WordWidgetState(wordCharactor, scale, width);
 }
 
-class _WordWidgetState extends State<WordWidget> with SingleTickerProviderStateMixin {
+class _WordWidgetState extends State<WordWidget> with TickerProviderStateMixin {
   Word word;
+  String wordCharactor;
+  double scale;
   int medianIndex = 0;
   double animateDistance;
   double width = 256;
   Animation<double> animation;
   AnimationController controller;
-  Map<String, int> speed = {"fast": 700, "common": 1000, "slow": 1300, 'slower': 2000};
+  int speed = 800;
 
-  _WordWidgetState(this.word, this.width);
+  _WordWidgetState(this.wordCharactor, this.scale, this.width);
 
   void newAnimation() {
-    double distance = word.distances[medianIndex][word.distances[medianIndex].keys.length - 1];
-    animation = Tween<double>(begin: 0, end: distance).animate(controller)
-      ..addListener(() {
-        if (animation.value >= distance) {
-          print(animation.value);
-          print(distance);
-          if (medianIndex < word.medians.length - 1) {
-            medianIndex += 1;
-          } else {
-            medianIndex = 0;
-          }
-          return newAnimation();
-        }
-        setState(() {
-          animateDistance = animation.value;
-        });
-      });
+    animation = Tween<double>(
+            begin: 0,
+            end: word.distances[medianIndex]
+                [word.distances[medianIndex].keys.length - 1])
+        .animate(controller)
+          ..addListener(() {
+            if (animation.value ==
+                word.distances[medianIndex]
+                    [word.distances[medianIndex].keys.length - 1]) {
+              if (medianIndex < word.medians.length - 1) {
+                medianIndex += 1;
+              } else {
+                medianIndex = 0;
+              }
+              newAnimation();
+            }
+            setState(() {
+              animateDistance = animation.value;
+            });
+          });
     controller.reset();
     controller.forward();
   }
 
+  resetSpeed(num) {
+    medianIndex = 0;
+    speed += num;
+    if (speed < 300) {
+      speed = 300;
+    }
+    if (speed > 1000) {
+      speed = 1000;
+    }
+    print(speed);
+    controller.dispose();
+    controller = AnimationController(
+        duration: Duration(milliseconds: speed), vsync: this);
+    controller.reset();
+    newAnimation();
+  }
+
   @override
   initState() {
-    controller = AnimationController(duration: Duration(milliseconds: speed['slower']), vsync: this);
-    animation = Tween<double>(begin: 0, end: 512).animate(controller)
-      ..addListener(() {
-        if (animation.value >= word.distances[medianIndex][word.distances[medianIndex].keys.length - 1]) {
-          if (medianIndex < word.medians.length - 1) {
-            medianIndex += 1;
-          } else {
-            medianIndex = 0;
-          }
-          setState(() {
-            medianIndex = medianIndex;
-          });
-          controller.reset();
-          controller.forward();
-        }
-        setState(() {
-          animateDistance = animation.value;
-        });
-      });
-    controller.forward();
+    controller = AnimationController(
+        duration: Duration(milliseconds: speed), vsync: this);
+    getWord(scale, word: wordCharactor).then((wordOrigin) {
+      word = wordOrigin;
+      newAnimation();
+    });
+
     super.initState();
   }
 
@@ -83,17 +94,35 @@ class _WordWidgetState extends State<WordWidget> with SingleTickerProviderStateM
     return Scaffold(
       appBar: AppBar(
         title: Text('练习'),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(FontAwesomeIcons.fastBackward, size: 15),
+            onPressed: () {
+              resetSpeed(150);
+            },
+            tooltip: '减速',
+          ),
+          IconButton(
+            icon: Icon(FontAwesomeIcons.fastForward, size: 15),
+            onPressed: () {
+              resetSpeed(-150);
+            },
+            tooltip: '加速',
+          ),
+        ],
       ),
       body: Center(
         child: SizedBox(
-          child: CustomPaint(
-            foregroundPainter: BiShunPainter(
-              word,
-              word.distances[medianIndex],
-              medianIndex,
-              animateDistance,
-            ),
-          ),
+          child: word != null
+              ? CustomPaint(
+                  foregroundPainter: BiShunPainter(
+                    word,
+                    word.distances[medianIndex],
+                    medianIndex,
+                    animateDistance,
+                  ),
+                )
+              : Text('加载中.....'),
           width: width,
           height: width,
         ),
@@ -136,7 +165,8 @@ class BiShunPainter extends CustomPainter {
   Paint animatePaint;
   Paint medianPaintStroke;
 
-  BiShunPainter(this.word, this.medianDistance, this.medianIndex, this.animateDistance) {
+  BiShunPainter(
+      this.word, this.medianDistance, this.medianIndex, this.animateDistance) {
     strokePain = Paint();
     strokePain.color = Colors.red;
     strokePain.style = PaintingStyle.fill;
@@ -164,7 +194,10 @@ class BiShunPainter extends CustomPainter {
     double distance;
     for (int i in medianDistance.keys) {
       if (animateDistance == 0) {
-        return [word.medians[medianIndex][0].points[0].x, word.medians[medianIndex][0].points[0].y];
+        return [
+          word.medians[medianIndex][0].points[0].x,
+          word.medians[medianIndex][0].points[0].y
+        ];
       }
       double value = medianDistance[i];
       if (value < animateDistance && animateDistance <= medianDistance[i + 1]) {
@@ -199,10 +232,12 @@ class BiShunPainter extends CustomPainter {
     WordPathPoint currentPoint;
     for (int j = 1; j < currentIndex; j++) {
       currentPoint = median[j].points[0];
-      canvas.drawLine(Offset(startPoint.x, startPoint.y), Offset(currentPoint.x, currentPoint.y), animatePaint);
+      canvas.drawLine(Offset(startPoint.x, startPoint.y),
+          Offset(currentPoint.x, currentPoint.y), animatePaint);
       startPoint = currentPoint;
     }
-    canvas.drawLine(Offset(startPoint.x, startPoint.y), Offset(endPoint[0], endPoint[1]), animatePaint);
+    canvas.drawLine(Offset(startPoint.x, startPoint.y),
+        Offset(endPoint[0], endPoint[1]), animatePaint);
   }
 
   @override

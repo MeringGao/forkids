@@ -31,15 +31,10 @@ class _WordWidgetState extends State<WordWidget> with TickerProviderStateMixin {
   _WordWidgetState(this.wordCharactor, this.scale, this.width);
 
   void newAnimation() {
-    animation = Tween<double>(
-            begin: 0,
-            end: word.distances[medianIndex]
-                [word.distances[medianIndex].keys.length - 1])
+    animation = Tween<double>(begin: 0, end: word.distances[medianIndex][word.distances[medianIndex].keys.length - 1])
         .animate(controller)
           ..addListener(() {
-            if (animation.value ==
-                word.distances[medianIndex]
-                    [word.distances[medianIndex].keys.length - 1]) {
+            if (animation.value == word.distances[medianIndex][word.distances[medianIndex].keys.length - 1]) {
               if (medianIndex < word.medians.length - 1) {
                 medianIndex += 1;
               } else {
@@ -66,16 +61,14 @@ class _WordWidgetState extends State<WordWidget> with TickerProviderStateMixin {
     }
     print(speed);
     controller.dispose();
-    controller = AnimationController(
-        duration: Duration(milliseconds: speed), vsync: this);
+    controller = AnimationController(duration: Duration(milliseconds: speed), vsync: this);
     controller.reset();
     newAnimation();
   }
 
   @override
   initState() {
-    controller = AnimationController(
-        duration: Duration(milliseconds: speed), vsync: this);
+    controller = AnimationController(duration: Duration(milliseconds: speed), vsync: this);
     getWord(scale, word: wordCharactor).then((wordOrigin) {
       word = wordOrigin;
       newAnimation();
@@ -84,6 +77,7 @@ class _WordWidgetState extends State<WordWidget> with TickerProviderStateMixin {
     super.initState();
   }
 
+  @override
   dispose() {
     controller.dispose();
     super.dispose();
@@ -165,8 +159,7 @@ class BiShunPainter extends CustomPainter {
   Paint animatePaint;
   Paint medianPaintStroke;
 
-  BiShunPainter(
-      this.word, this.medianDistance, this.medianIndex, this.animateDistance) {
+  BiShunPainter(this.word, this.medianDistance, this.medianIndex, this.animateDistance) {
     strokePain = Paint();
     strokePain.color = Colors.red;
     strokePain.style = PaintingStyle.fill;
@@ -194,10 +187,7 @@ class BiShunPainter extends CustomPainter {
     double distance;
     for (int i in medianDistance.keys) {
       if (animateDistance == 0) {
-        return [
-          word.medians[medianIndex][0].points[0].x,
-          word.medians[medianIndex][0].points[0].y
-        ];
+        return [word.medians[medianIndex][0].points[0].x, word.medians[medianIndex][0].points[0].y];
       }
       double value = medianDistance[i];
       if (value < animateDistance && animateDistance <= medianDistance[i + 1]) {
@@ -232,12 +222,10 @@ class BiShunPainter extends CustomPainter {
     WordPathPoint currentPoint;
     for (int j = 1; j < currentIndex; j++) {
       currentPoint = median[j].points[0];
-      canvas.drawLine(Offset(startPoint.x, startPoint.y),
-          Offset(currentPoint.x, currentPoint.y), animatePaint);
+      canvas.drawLine(Offset(startPoint.x, startPoint.y), Offset(currentPoint.x, currentPoint.y), animatePaint);
       startPoint = currentPoint;
     }
-    canvas.drawLine(Offset(startPoint.x, startPoint.y),
-        Offset(endPoint[0], endPoint[1]), animatePaint);
+    canvas.drawLine(Offset(startPoint.x, startPoint.y), Offset(endPoint[0], endPoint[1]), animatePaint);
   }
 
   @override

@@ -30,4 +30,19 @@
             </intent-filter>
         </activity>
     </application>
+    <uses-permission android:name="android.permission.BLUETOOTH"></uses-permission>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"></uses-permission>
+    <uses-permission android:name="android.permission.BLUETOOTH_PRIVILEGED"></uses-permission>
+    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"></uses-permission>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"></uses-permission>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"></uses-permission>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"></uses-permission>
+    <uses-permission android:name="android.permission.LOCATION_HARDWARE"></uses-permission>
+    <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS"></uses-permission>
+    <uses-permission android:name="android.permission.ACCESS_MOCK_LOCATION"></uses-permission>
+    <uses-permission android:name="android.permission.BATTERY_STATS"></uses-permission>
+    <uses-permission android:name="android.permission.CAMERA"></uses-permission>
+    <uses-permission android:name="android.permission.CALL_PHONE"></uses-permission>
 </manifest>

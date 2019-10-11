@@ -20,8 +20,6 @@ dependencies:
   flutter:
     sdk: flutter
   font_awesome_flutter: ^8.5.0
-  battery: ^0.3.0+5
-  location: ^2.3.5
   dio: 2.1.0
 
 

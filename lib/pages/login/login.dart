@@ -1,7 +1,5 @@
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/material.dart';
-import 'package:battery/battery.dart';
-import 'package:location/location.dart';
 
 class LoginWidget extends StatefulWidget {
   LoginWidget({Key key}) : super(key: key);
@@ -51,25 +49,6 @@ class _LoginWidgetState extends State<LoginWidget> {
                       icon: Icon(FontAwesomeIcons.weixin, color: Colors.white),
                       onPressed: () {
                         print('login with weixin');
-                        var battery = Battery();
-                        battery.batteryLevel.then((value) {
-                          setState(() {
-                            batteryLevel = value;
-                          });
-                        });
-                        var location = new Location();
-                        location.onLocationChanged().listen((LocationData locationData) {
-                          setState(() {
-                            String now = DateTime.now().toString();
-                            currentLocation = '$now:latitude:${locationData.latitude}\nlongitude:${locationData.longitude}';
-                          });
-                        });
-                        location.getLocation().then((locationData) {
-                          setState(() {
-                            String now = DateTime.now().toString();
-                            currentLocation = '$now:latitude:${locationData.latitude}\nlongitude:${locationData.longitude}';
-                          });
-                        });
                       },
                     ),
                   )),
@@ -143,8 +122,6 @@ class _LoginWidgetState extends State<LoginWidget> {
                                   registUser();
                                 })
                           ])),
-                      Text('位置:$currentLocation'),
-                      Text('电池:$batteryLevel'),
                     ],
                   )))
             ])));

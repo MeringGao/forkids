@@ -9,6 +9,8 @@ const String audioChannel = 'forkids.channel.services/audio';
 const String storageChannel = 'forkids.channel.services/storage';
 const String phonecallChannel = 'forkids.channel.services/phonecall';
 const String bluetoohChannel = 'forkids.channel.services/bluetooh';
+const String serviceChannel = 'forkids.channel.services/service';
+
 
 mixin Channel {
   var platform;
@@ -55,5 +57,9 @@ class PhonecallChannel with Channel {
 }
 
 class BluetoohChannel with Channel {
+  var platform = const MethodChannel(bluetoohChannel);
+}
+
+class ServiceChannel with Channel {
   var platform = const MethodChannel(bluetoohChannel);
 }
